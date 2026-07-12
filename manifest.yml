@@ -1,0 +1,19 @@
+---
+applications:
+- name: granter-genie
+  memory: 512M
+  instances: 1
+  buildpack: python_buildpack
+  command: python app.py
+  env:
+    FLASK_ENV: production
+    FLASK_DEBUG: false
+  services:
+    - watsonx-ai-service
+  routes:
+    - route: granter-genie.mybluemix.net
+  health-check-type: http
+  health-check-http-endpoint: /
+  timeout: 180
+
+# Made with Bob
