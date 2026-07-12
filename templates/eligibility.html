@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}Eligibility Checker - Granter Genie{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="text-center mb-5">
+                <h1 class="display-5 fw-bold mb-3">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    Grant Eligibility Checker
+                </h1>
+                <p class="lead text-muted">Analyze your eligibility for specific grants with AI-powered insights</p>
+            </div>
+
+            <div class="card border-0 shadow-lg">
+                <div class="card-body p-4">
+                    <form id="eligibilityForm">
+                        <div class="row g-4">
+                            <div class="col-12">
+                                <h5 class="fw-bold mb-3">
+                                    <i class="bi bi-building me-2 text-primary"></i>Startup Information
+                                </h5>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Startup Name</label>
+                                <input type="text" class="form-control" id="startupName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Industry</label>
+                                <select class="form-select" id="industry" required>
+                                    <option value="">Select Industry</option>
+                                    <option value="Technology">Technology</option>
+                                    <option value="Healthcare">Healthcare</option>
+                                    <option value="Agriculture">Agriculture</option>
+                                    <option value="Manufacturing">Manufacturing</option>
+                                    <option value="Education">Education</option>
+                                    <option value="FinTech">FinTech</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Stage</label>
+                                <select class="form-select" id="stage" required>
+                                    <option value="">Select Stage</option>
+                                    <option value="Idea">Idea</option>
+                                    <option value="MVP">MVP</option>
+                                    <option value="Early Revenue">Early Revenue</option>
+                                    <option value="Scaling">Scaling</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Location</label>
+                                <input type="text" class="form-control" id="location" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Funding Needed</label>
+                                <input type="text" class="form-control" id="fundingNeeded" placeholder="e.g., ₹50 lakhs" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Team Size</label>
+                                <input type="number" class="form-control" id="teamSize" required>
+                            </div>
+
+                            <div class="col-12 mt-4">
+                                <h5 class="fw-bold mb-3">
+                                    <i class="bi bi-award me-2 text-warning"></i>Grant Information
+                                </h5>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Select Grant</label>
+                                <select class="form-select" id="grantSelect" required>
+                                    <option value="">Choose a grant to check eligibility</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="grantDetails" style="display: none;">
+                                <div class="alert alert-info">
+                                    <h6 class="fw-bold mb-2">Grant Details:</h6>
+                                    <div id="grantDetailsContent"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-success btn-lg px-5">
+                                <i class="bi bi-check-circle me-2"></i>Check Eligibility
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="resultsSection" class="mt-4 d-none">
+                <div class="card border-0 shadow-lg">
+                    <div class="card-header bg-gradient-success text-white py-3">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="bi bi-clipboard-check me-2"></i>Eligibility Analysis
+                        </h5>
+                    </div>
+                    <div class="card-body p-4" id="analysisContent">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-success" role="status"></div>
+                            <p class="text-muted mt-3">Analyzing eligibility...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let allGrants = [];
+
+async function loadGrants() {
+    try {
+        const response = await fetch('/api/search-grants', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({})
+        });
+        const data = await response.json();
+        allGrants = data.grants || [];
+        
+        const select = document.getElementById('grantSelect');
+        select.innerHTML = '<option value="">Choose a grant to check eligibility</option>' +
+            allGrants.map((grant, index) => 
+                `<option value="${index}">${grant.name} - ${grant.provider}</option>`
+            ).join('');
+    } catch (error) {
+        console.error('Error loading grants:', error);
+    }
+}
+
+document.getElementById('grantSelect').addEventListener('change', (e) => {
+    const index = e.target.value;
+    if (index !== '') {
+        const grant = allGrants[index];
+        document.getElementById('grantDetails').style.display = 'block';
+        document.getElementById('grantDetailsContent').innerHTML = `
+            <p class="mb-1"><strong>Type:</strong> ${grant.type}</p>
+            <p class="mb-1"><strong>Amount:</strong> ${grant.amount}</p>
+            <p class="mb-1"><strong>Location:</strong> ${grant.location}</p>
+            <p class="mb-0"><strong>Eligibility:</strong> ${grant.eligibility}</p>
+        `;
+    } else {
+        document.getElementById('grantDetails').style.display = 'none';
+    }
+});
+
+document.getElementById('eligibilityForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const grantIndex = document.getElementById('grantSelect').value;
+    if (grantIndex === '') {
+        alert('Please select a grant');
+        return;
+    }
+    
+    const startupProfile = {
+        name: document.getElementById('startupName').value,
+        industry: document.getElementById('industry').value,
+        stage: document.getElementById('stage').value,
+        location: document.getElementById('location').value,
+        funding_needed: document.getElementById('fundingNeeded').value,
+        team_size: document.getElementById('teamSize').value
+    };
+    
+    const grantInfo = allGrants[grantIndex];
+    
+    document.getElementById('resultsSection').classList.remove('d-none');
+    document.getElementById('analysisContent').innerHTML = `
+        <div class="text-center py-5">
+            <div class="spinner-border text-success" role="status"></div>
+            <p class="text-muted mt-3">Analyzing eligibility...</p>
+        </div>
+    `;
+    
+    document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+    
+    try {
+        const response = await fetch('/api/eligibility', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                startup_profile: startupProfile,
+                grant_info: grantInfo
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.analysis) {
+            document.getElementById('analysisContent').innerHTML = `
+                <div class="eligibility-result">
+                    <div class="alert alert-success mb-4">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        <strong>Analysis Complete!</strong>
+                    </div>
+                    <div class="ai-response">
+                        ${formatAnalysis(data.analysis)}
+                    </div>
+                    <div class="text-center mt-4">
+                        <a href="/tracker" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-2"></i>Track This Application
+                        </a>
+                        <button class="btn btn-outline-secondary ms-2" onclick="window.print()">
+                            <i class="bi bi-printer me-2"></i>Print Report
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('analysisContent').innerHTML = `
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                Error analyzing eligibility. Please try again.
+            </div>
+        `;
+    }
+});
+
+function formatAnalysis(text) {
+    text = text.replace(/\n/g, '<br>');
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    return `<div class="formatted-content">${text}</div>`;
+}
+
+document.addEventListener('DOMContentLoaded', loadGrants);
+</script>
+{% endblock %}

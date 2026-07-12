@@ -1,0 +1,475 @@
+{% extends "base.html" %}
+
+{% block title %}Search Grants - Granter Genie{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-lg-3 mb-4">
+            <div class="card border-0 shadow-sm sticky-top" style="top: 80px;">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-funnel-fill text-primary me-2"></i>Filters
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="filterForm">
+                        <!-- Grant Type -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small">Grant Type</label>
+                            <select class="form-select" id="filterType">
+                                <option value="">All Types</option>
+                                <option value="Government Grant">Government Grant</option>
+                                <option value="Government Loan">Government Loan</option>
+                                <option value="Accelerator Program">Accelerator Program</option>
+                                <option value="International Grant">International Grant</option>
+                            </select>
+                        </div>
+
+                        <!-- Industry -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small">Industry</label>
+                            <select class="form-select" id="filterIndustry">
+                                <option value="">All Industries</option>
+                                <option value="Technology">Technology</option>
+                                <option value="Healthcare">Healthcare</option>
+                                <option value="Agriculture">Agriculture</option>
+                                <option value="Manufacturing">Manufacturing</option>
+                                <option value="Education">Education</option>
+                                <option value="FinTech">FinTech</option>
+                                <option value="Clean Energy">Clean Energy</option>
+                            </select>
+                        </div>
+
+                        <!-- Location -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small">Location</label>
+                            <select class="form-select" id="filterLocation">
+                                <option value="">All Locations</option>
+                                <option value="India">India</option>
+                                <option value="Global">Global</option>
+                                <option value="Europe">Europe</option>
+                                <option value="United States">United States</option>
+                                <option value="Asia">Asia-Pacific</option>
+                            </select>
+                        </div>
+
+                        <!-- Startup Stage -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small">Startup Stage</label>
+                            <select class="form-select" id="filterStage">
+                                <option value="">All Stages</option>
+                                <option value="Idea">Idea Stage</option>
+                                <option value="MVP">MVP/Prototype</option>
+                                <option value="Early Revenue">Early Revenue</option>
+                                <option value="Scaling">Scaling</option>
+                            </select>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search me-2"></i>Apply Filters
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="resetFilters()">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Reset
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grants List -->
+        <div class="col-lg-9">
+            <!-- Search Bar -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input 
+                            type="text" 
+                            class="form-control border-start-0" 
+                            id="searchInput"
+                            placeholder="Search grants by name, provider, or keywords..."
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Header -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0 fw-bold">
+                    <span id="resultsCount">Loading...</span> Opportunities Found
+                </h5>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-sm btn-outline-secondary active" onclick="setView('grid')">
+                        <i class="bi bi-grid-3x3-gap"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setView('list')">
+                        <i class="bi bi-list-ul"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Grants Grid -->
+            <div id="grantsContainer" class="row g-4">
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-muted mt-3">Loading grants...</p>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <nav aria-label="Grants pagination" class="mt-4">
+                <ul class="pagination justify-content-center" id="pagination">
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Grant Detail Modal -->
+<div class="modal fade" id="grantModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-gradient-primary text-white">
+                <h5 class="modal-title fw-bold" id="modalGrantName"></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalGrantBody">
+                <!-- Content loaded dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="applyForGrant()">
+                    <i class="bi bi-check-circle me-2"></i>Check Eligibility
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let allGrants = [];
+let filteredGrants = [];
+let currentView = 'grid';
+let currentPage = 1;
+const grantsPerPage = 9;
+
+// Load grants
+async function loadGrants() {
+    try {
+        const response = await fetch('/api/search-grants', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({})
+        });
+        const data = await response.json();
+        allGrants = data.grants || [];
+        filteredGrants = allGrants;
+        displayGrants();
+    } catch (error) {
+        console.error('Error loading grants:', error);
+        document.getElementById('grantsContainer').innerHTML = `
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-exclamation-triangle text-danger fs-1"></i>
+                <p class="text-danger mt-3">Error loading grants. Please try again.</p>
+            </div>
+        `;
+    }
+}
+
+// Display grants
+function displayGrants() {
+    const container = document.getElementById('grantsContainer');
+    const start = (currentPage - 1) * grantsPerPage;
+    const end = start + grantsPerPage;
+    const pageGrants = filteredGrants.slice(start, end);
+    
+    document.getElementById('resultsCount').textContent = filteredGrants.length;
+    
+    if (pageGrants.length === 0) {
+        container.innerHTML = `
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-search fs-1 text-muted"></i>
+                <p class="text-muted mt-3">No grants found matching your criteria.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    if (currentView === 'grid') {
+        container.innerHTML = pageGrants.map(grant => `
+            <div class="col-md-6 col-lg-4">
+                <div class="card grant-card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <span class="badge bg-primary-subtle text-primary">${grant.type}</span>
+                            <button class="btn btn-sm btn-link text-muted p-0" onclick="bookmarkGrant('${grant.id}')">
+                                <i class="bi bi-bookmark"></i>
+                            </button>
+                        </div>
+                        <h6 class="fw-bold mb-2">${grant.name}</h6>
+                        <p class="small text-muted mb-2">
+                            <i class="bi bi-building me-1"></i>${grant.provider}
+                        </p>
+                        <div class="mb-3">
+                            <span class="badge bg-success-subtle text-success me-1 mb-1">
+                                <i class="bi bi-cash me-1"></i>${grant.amount}
+                            </span>
+                            <span class="badge bg-info-subtle text-info mb-1">
+                                <i class="bi bi-geo-alt me-1"></i>${grant.location}
+                            </span>
+                        </div>
+                        <p class="small text-muted mb-3">${grant.description.substring(0, 100)}...</p>
+                        ${grant.deadline ? `
+                            <p class="small mb-3">
+                                <i class="bi bi-calendar-event text-danger me-1"></i>
+                                <strong>Deadline:</strong> ${grant.deadline}
+                            </p>
+                        ` : ''}
+                        <button class="btn btn-sm btn-outline-primary w-100" onclick="showGrantDetail('${grant.id}')">
+                            View Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } else {
+        container.innerHTML = pageGrants.map(grant => `
+            <div class="col-12">
+                <div class="card grant-card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <div class="d-flex align-items-start mb-2">
+                                    <span class="badge bg-primary-subtle text-primary me-2">${grant.type}</span>
+                                    <h6 class="fw-bold mb-0">${grant.name}</h6>
+                                </div>
+                                <p class="small text-muted mb-2">
+                                    <i class="bi bi-building me-1"></i>${grant.provider}
+                                </p>
+                                <p class="small mb-2">${grant.description.substring(0, 150)}...</p>
+                                <div>
+                                    <span class="badge bg-success-subtle text-success me-1">
+                                        <i class="bi bi-cash me-1"></i>${grant.amount}
+                                    </span>
+                                    <span class="badge bg-info-subtle text-info">
+                                        <i class="bi bi-geo-alt me-1"></i>${grant.location}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                ${grant.deadline ? `
+                                    <p class="small mb-2">
+                                        <i class="bi bi-calendar-event text-danger me-1"></i>
+                                        ${grant.deadline}
+                                    </p>
+                                ` : ''}
+                                <button class="btn btn-sm btn-outline-primary" onclick="showGrantDetail('${grant.id}')">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    updatePagination();
+}
+
+// Show grant detail
+function showGrantDetail(grantId) {
+    const grant = allGrants.find(g => g.id === grantId);
+    if (!grant) return;
+    
+    document.getElementById('modalGrantName').textContent = grant.name;
+    document.getElementById('modalGrantBody').innerHTML = `
+        <div class="grant-detail">
+            <div class="mb-4">
+                <span class="badge bg-primary-subtle text-primary me-2">${grant.type}</span>
+                <span class="badge bg-success-subtle text-success">${grant.amount}</span>
+            </div>
+            
+            <div class="mb-4">
+                <h6 class="fw-bold mb-2">Provider</h6>
+                <p class="mb-0">${grant.provider}</p>
+            </div>
+            
+            <div class="mb-4">
+                <h6 class="fw-bold mb-2">Description</h6>
+                <p class="mb-0">${grant.description}</p>
+            </div>
+            
+            <div class="mb-4">
+                <h6 class="fw-bold mb-2">Focus Area</h6>
+                <p class="mb-0">${grant.focus_area}</p>
+            </div>
+            
+            <div class="mb-4">
+                <h6 class="fw-bold mb-2">Location</h6>
+                <p class="mb-0">${grant.location}</p>
+            </div>
+            
+            <div class="mb-4">
+                <h6 class="fw-bold mb-2">Eligibility</h6>
+                <p class="mb-0">${grant.eligibility}</p>
+            </div>
+            
+            ${grant.deadline ? `
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-2">Application Deadline</h6>
+                    <p class="mb-0 text-danger">
+                        <i class="bi bi-calendar-event me-1"></i>${grant.deadline}
+                    </p>
+                </div>
+            ` : ''}
+            
+            ${grant.required_documents ? `
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-2">Required Documents</h6>
+                    <ul class="mb-0">
+                        ${grant.required_documents.map(doc => `<li>${doc}</li>`).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+            
+            ${grant.benefits ? `
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-2">Benefits</h6>
+                    <ul class="mb-0">
+                        ${grant.benefits.map(benefit => `<li>${benefit}</li>`).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+            
+            ${grant.processing_time ? `
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-2">Processing Time</h6>
+                    <p class="mb-0">${grant.processing_time}</p>
+                </div>
+            ` : ''}
+            
+            ${grant.application_url ? `
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-2">Application URL</h6>
+                    <p class="mb-0">
+                        <a href="${grant.application_url}" target="_blank" class="text-primary">
+                            ${grant.application_url} <i class="bi bi-box-arrow-up-right ms-1"></i>
+                        </a>
+                    </p>
+                </div>
+            ` : ''}
+        </div>
+    `;
+    
+    new bootstrap.Modal(document.getElementById('grantModal')).show();
+}
+
+// Filter grants
+document.getElementById('filterForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const filters = {
+        type: document.getElementById('filterType').value,
+        industry: document.getElementById('filterIndustry').value,
+        location: document.getElementById('filterLocation').value,
+        stage: document.getElementById('filterStage').value
+    };
+    
+    try {
+        const response = await fetch('/api/search-grants', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(filters)
+        });
+        const data = await response.json();
+        filteredGrants = data.grants || [];
+        currentPage = 1;
+        displayGrants();
+    } catch (error) {
+        console.error('Error filtering grants:', error);
+    }
+});
+
+// Search grants
+document.getElementById('searchInput').addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    filteredGrants = allGrants.filter(grant => 
+        grant.name.toLowerCase().includes(searchTerm) ||
+        grant.provider.toLowerCase().includes(searchTerm) ||
+        grant.description.toLowerCase().includes(searchTerm) ||
+        grant.focus_area.toLowerCase().includes(searchTerm)
+    );
+    currentPage = 1;
+    displayGrants();
+});
+
+// Reset filters
+function resetFilters() {
+    document.getElementById('filterForm').reset();
+    document.getElementById('searchInput').value = '';
+    filteredGrants = allGrants;
+    currentPage = 1;
+    displayGrants();
+}
+
+// Set view
+function setView(view) {
+    currentView = view;
+    document.querySelectorAll('.btn-group button').forEach(btn => btn.classList.remove('active'));
+    event.target.closest('button').classList.add('active');
+    displayGrants();
+}
+
+// Update pagination
+function updatePagination() {
+    const totalPages = Math.ceil(filteredGrants.length / grantsPerPage);
+    const pagination = document.getElementById('pagination');
+    
+    if (totalPages <= 1) {
+        pagination.innerHTML = '';
+        return;
+    }
+    
+    let html = '';
+    for (let i = 1; i <= totalPages; i++) {
+        html += `
+            <li class="page-item ${i === currentPage ? 'active' : ''}">
+                <a class="page-link" href="#" onclick="changePage(${i}); return false;">${i}</a>
+            </li>
+        `;
+    }
+    pagination.innerHTML = html;
+}
+
+// Change page
+function changePage(page) {
+    currentPage = page;
+    displayGrants();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Bookmark grant
+function bookmarkGrant(grantId) {
+    // Implement bookmark functionality
+    alert('Grant bookmarked! (Feature to be implemented)');
+}
+
+// Apply for grant
+function applyForGrant() {
+    window.location.href = '/eligibility';
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', loadGrants);
+</script>
+{% endblock %}

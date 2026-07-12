@@ -1,0 +1,319 @@
+{% extends "base.html" %}
+
+{% block title %}AI Chat - Granter Genie{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-lg chat-container">
+                <div class="card-header bg-gradient-primary text-white py-3">
+                    <div class="d-flex align-items-center">
+                        <div class="chat-avatar me-3">
+                            <i class="bi bi-magic fs-3"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-0 fw-bold">Granter Genie AI Assistant</h5>
+                            <small class="opacity-75">Powered by IBM watsonx.ai Granite Models</small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-light ms-auto" onclick="clearChat()">
+                            <i class="bi bi-trash me-1"></i>Clear Chat
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card-body p-0">
+                    <!-- Chat Messages -->
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message bot-message animate-fade-in">
+                            <div class="message-avatar">
+                                <i class="bi bi-magic"></i>
+                            </div>
+                            <div class="message-content">
+                                <div class="message-bubble">
+                                    <p class="mb-2">👋 Hello! I'm Granter Genie, your AI-powered funding assistant.</p>
+                                    <p class="mb-2">I can help you with:</p>
+                                    <ul class="mb-2">
+                                        <li>Finding suitable grants and funding opportunities</li>
+                                        <li>Checking eligibility criteria</li>
+                                        <li>Understanding application requirements</li>
+                                        <li>Generating proposal drafts</li>
+                                        <li>Answering questions about funding programs</li>
+                                    </ul>
+                                    <p class="mb-0">How can I assist you today?</p>
+                                </div>
+                                <small class="message-time">Just now</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Suggested Questions -->
+                    <div class="suggested-questions px-4 py-3 border-top" id="suggestedQuestions">
+                        <p class="small text-muted mb-2 fw-bold">Suggested Questions:</p>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button class="btn btn-sm btn-outline-primary suggestion-btn" onclick="sendSuggestion(this)">
+                                What grants are available for tech startups in India?
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary suggestion-btn" onclick="sendSuggestion(this)">
+                                How do I apply for Startup India Seed Fund?
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary suggestion-btn" onclick="sendSuggestion(this)">
+                                What documents do I need for grant applications?
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary suggestion-btn" onclick="sendSuggestion(this)">
+                                Help me write a grant proposal
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="chat-input-container p-4 border-top">
+                        <form id="chatForm" class="d-flex gap-2">
+                            <input 
+                                type="text" 
+                                class="form-control form-control-lg" 
+                                id="messageInput" 
+                                placeholder="Ask me anything about grants and funding..."
+                                autocomplete="off"
+                                required
+                            >
+                            <button type="submit" class="btn btn-primary btn-lg px-4" id="sendButton">
+                                <i class="bi bi-send-fill"></i>
+                            </button>
+                        </form>
+                        <div class="text-center mt-2">
+                            <small class="text-muted">
+                                <i class="bi bi-shield-check me-1"></i>
+                                Your conversations are private and secure
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="row g-3 mt-3">
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm quick-action-card">
+                        <div class="card-body text-center">
+                            <i class="bi bi-search fs-2 text-primary mb-2"></i>
+                            <h6 class="mb-1">Search Grants</h6>
+                            <a href="/search" class="stretched-link"></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm quick-action-card">
+                        <div class="card-body text-center">
+                            <i class="bi bi-lightbulb fs-2 text-success mb-2"></i>
+                            <h6 class="mb-1">Get Recommendations</h6>
+                            <a href="/recommendations" class="stretched-link"></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm quick-action-card">
+                        <div class="card-body text-center">
+                            <i class="bi bi-check-circle fs-2 text-warning mb-2"></i>
+                            <h6 class="mb-1">Check Eligibility</h6>
+                            <a href="/eligibility" class="stretched-link"></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm quick-action-card">
+                        <div class="card-body text-center">
+                            <i class="bi bi-person-circle fs-2 text-info mb-2"></i>
+                            <h6 class="mb-1">Update Profile</h6>
+                            <a href="/profile" class="stretched-link"></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const chatMessages = document.getElementById('chatMessages');
+const chatForm = document.getElementById('chatForm');
+const messageInput = document.getElementById('messageInput');
+const sendButton = document.getElementById('sendButton');
+
+// Send message
+chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const message = messageInput.value.trim();
+    
+    if (!message) return;
+    
+    // Add user message
+    addMessage(message, 'user');
+    messageInput.value = '';
+    
+    // Show typing indicator
+    showTypingIndicator();
+    
+    // Send to API
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: message })
+        });
+        
+        const data = await response.json();
+        
+        // Remove typing indicator
+        removeTypingIndicator();
+        
+        // Add bot response
+        if (data.response) {
+            addMessage(data.response, 'bot');
+        } else {
+            addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        removeTypingIndicator();
+        addMessage('Sorry, I encountered an error connecting to the AI service. Please check your API configuration.', 'bot');
+    }
+});
+
+// Add message to chat
+function addMessage(text, sender) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}-message animate-fade-in`;
+    
+    const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    
+    if (sender === 'bot') {
+        messageDiv.innerHTML = `
+            <div class="message-avatar">
+                <i class="bi bi-magic"></i>
+            </div>
+            <div class="message-content">
+                <div class="message-bubble">
+                    ${formatMessage(text)}
+                </div>
+                <small class="message-time">${time}</small>
+            </div>
+        `;
+    } else {
+        messageDiv.innerHTML = `
+            <div class="message-content">
+                <div class="message-bubble">
+                    ${formatMessage(text)}
+                </div>
+                <small class="message-time">${time}</small>
+            </div>
+            <div class="message-avatar">
+                <i class="bi bi-person-circle"></i>
+            </div>
+        `;
+    }
+    
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Format message with markdown-like syntax
+function formatMessage(text) {
+    // Convert line breaks
+    text = text.replace(/\n/g, '<br>');
+    
+    // Convert bold
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Convert lists
+    text = text.replace(/^- (.+)$/gm, '<li>$1</li>');
+    text = text.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+    
+    return text;
+}
+
+// Show typing indicator
+function showTypingIndicator() {
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message bot-message typing-indicator';
+    typingDiv.id = 'typingIndicator';
+    typingDiv.innerHTML = `
+        <div class="message-avatar">
+            <i class="bi bi-magic"></i>
+        </div>
+        <div class="message-content">
+            <div class="message-bubble">
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    `;
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Remove typing indicator
+function removeTypingIndicator() {
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) {
+        typingIndicator.remove();
+    }
+}
+
+// Send suggested question
+function sendSuggestion(button) {
+    messageInput.value = button.textContent.trim();
+    chatForm.dispatchEvent(new Event('submit'));
+}
+
+// Clear chat
+function clearChat() {
+    if (confirm('Are you sure you want to clear the chat history?')) {
+        chatMessages.innerHTML = `
+            <div class="message bot-message animate-fade-in">
+                <div class="message-avatar">
+                    <i class="bi bi-magic"></i>
+                </div>
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <p class="mb-0">Chat cleared! How can I help you today?</p>
+                    </div>
+                    <small class="message-time">Just now</small>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Auto-focus input
+messageInput.focus();
+</script>
+
+<!-- Watson Orchestrate Chat Widget -->
+<div id="root"></div>
+<script>
+  window.wxOConfiguration = {
+    orchestrationID: "5971ebaa2b4447d7b970f14dbffb45c0_c9c639c3-d460-4a0c-8914-448ab7f5751d",
+    hostURL: "https://au-syd.watson-orchestrate.cloud.ibm.com",
+    rootElementID: "root",
+    deploymentPlatform: "ibmcloud",
+    crn: "crn:v1:bluemix:public:watsonx-orchestrate:au-syd:a/5971ebaa2b4447d7b970f14dbffb45c0:c9c639c3-d460-4a0c-8914-448ab7f5751d::",
+    chatOptions: {
+        agentId: "3f0595e3-a3e7-4c44-a233-35e1d5aca360",
+    }
+  };
+  setTimeout(function () {
+    const script = document.createElement('script');
+    script.src = `${window.wxOConfiguration.hostURL}/wxochat/wxoLoader.js?embed=true`;
+    script.addEventListener('load', function () {
+        wxoLoader.init();
+    });
+    document.head.appendChild(script);
+  }, 0);
+</script>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}500 - Server Error - Granter Genie{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+        <div class="col-md-6 text-center">
+            <div class="error-page">
+                <i class="bi bi-exclamation-octagon-fill text-danger" style="font-size: 120px;"></i>
+                <h1 class="display-1 fw-bold mt-4">500</h1>
+                <h2 class="mb-4">Internal Server Error</h2>
+                <p class="lead text-muted mb-4">
+                    Something went wrong on our end. We're working to fix it!
+                    Please try again later or contact support if the problem persists.
+                </p>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="/" class="btn btn-primary btn-lg">
+                        <i class="bi bi-house-door me-2"></i>Go to Dashboard
+                    </a>
+                    <a href="/chat" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-chat-dots me-2"></i>AI Chat Support
+                    </a>
+                </div>
+                <div class="mt-4">
+                    <p class="small text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        If you continue to experience issues, please check your IBM Cloud API configuration.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

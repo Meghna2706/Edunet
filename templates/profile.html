@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+
+{% block title %}Startup Profile - Granter Genie{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="text-center mb-5">
+                <h1 class="display-5 fw-bold mb-3">
+                    <i class="bi bi-person-circle text-info me-2"></i>
+                    Startup Profile
+                </h1>
+                <p class="lead text-muted">Manage your startup information for better grant recommendations</p>
+            </div>
+
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-gradient-primary text-white py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-building me-2"></i>Company Information
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form id="profileForm">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Startup Name *</label>
+                                <input type="text" class="form-control" id="startupName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Registration Number</label>
+                                <input type="text" class="form-control" id="registrationNumber">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Industry/Sector *</label>
+                                <select class="form-select" id="industry" required>
+                                    <option value="">Select Industry</option>
+                                    <option value="Technology">Technology & Software</option>
+                                    <option value="Healthcare">Healthcare & Biotech</option>
+                                    <option value="Agriculture">Agriculture & AgriTech</option>
+                                    <option value="Clean Energy">Clean Energy & Sustainability</option>
+                                    <option value="Education">Education & EdTech</option>
+                                    <option value="FinTech">FinTech & Financial Services</option>
+                                    <option value="E-commerce">E-commerce & Retail</option>
+                                    <option value="Manufacturing">Manufacturing & Industry 4.0</option>
+                                    <option value="Social Impact">Social Impact & NGOs</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Startup Stage *</label>
+                                <select class="form-select" id="stage" required>
+                                    <option value="">Select Stage</option>
+                                    <option value="Idea">Idea Stage</option>
+                                    <option value="MVP">MVP/Prototype</option>
+                                    <option value="Early Revenue">Early Revenue</option>
+                                    <option value="Scaling">Scaling/Growth</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Founded Year</label>
+                                <input type="number" class="form-control" id="foundedYear" min="1900" max="2026">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Team Size *</label>
+                                <input type="number" class="form-control" id="teamSize" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Location (City) *</label>
+                                <input type="text" class="form-control" id="city" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">State *</label>
+                                <input type="text" class="form-control" id="state" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Country *</label>
+                                <input type="text" class="form-control" id="country" value="India" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Website</label>
+                                <input type="url" class="form-control" id="website" placeholder="https://example.com">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Company Description *</label>
+                                <textarea class="form-control" id="description" rows="4" required placeholder="Describe your startup, product/service, and unique value proposition..."></textarea>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h5 class="fw-bold mb-3">
+                            <i class="bi bi-cash-stack me-2 text-success"></i>Funding Information
+                        </h5>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Current Funding Stage</label>
+                                <select class="form-select" id="fundingStage">
+                                    <option value="">Select Stage</option>
+                                    <option value="Bootstrapped">Bootstrapped</option>
+                                    <option value="Pre-seed">Pre-seed</option>
+                                    <option value="Seed">Seed</option>
+                                    <option value="Series A">Series A</option>
+                                    <option value="Series B+">Series B+</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Funding Needed</label>
+                                <select class="form-select" id="fundingNeeded">
+                                    <option value="">Select Range</option>
+                                    <option value="< ₹10 lakhs">< ₹10 lakhs</option>
+                                    <option value="₹10 lakhs - ₹1 crore">₹10 lakhs - ₹1 crore</option>
+                                    <option value="₹1 crore - ₹10 crores">₹1 crore - ₹10 crores</option>
+                                    <option value="> ₹10 crores">> ₹10 crores</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Funding Purpose</label>
+                                <textarea class="form-control" id="fundingPurpose" rows="3" placeholder="What will you use the funding for?"></textarea>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h5 class="fw-bold mb-3">
+                            <i class="bi bi-bullseye me-2 text-warning"></i>Business Goals
+                        </h5>
+                        <div class="row g-4">
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Short-term Goals (6-12 months)</label>
+                                <textarea class="form-control" id="shortTermGoals" rows="3"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Long-term Goals (2-5 years)</label>
+                                <textarea class="form-control" id="longTermGoals" rows="3"></textarea>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h5 class="fw-bold mb-3">
+                            <i class="bi bi-award me-2 text-primary"></i>Certifications & Recognition
+                        </h5>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="dpiitRecognized">
+                                    <label class="form-check-label" for="dpiitRecognized">
+                                        DPIIT Recognized Startup
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="msmeRegistered">
+                                    <label class="form-check-label" for="msmeRegistered">
+                                        MSME Registered
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Other Certifications/Awards</label>
+                                <textarea class="form-control" id="certifications" rows="2" placeholder="List any other certifications, awards, or recognitions..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                <i class="bi bi-save me-2"></i>Save Profile
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-lg px-5 ms-2" onclick="loadProfile()">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Reset
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-4">
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm text-center p-3">
+                        <i class="bi bi-lightbulb fs-2 text-warning mb-2"></i>
+                        <h6 class="mb-2">Get Recommendations</h6>
+                        <p class="small text-muted mb-2">Based on your profile</p>
+                        <a href="/recommendations" class="btn btn-sm btn-outline-warning">Get Started</a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm text-center p-3">
+                        <i class="bi bi-check-circle fs-2 text-success mb-2"></i>
+                        <h6 class="mb-2">Check Eligibility</h6>
+                        <p class="small text-muted mb-2">For specific grants</p>
+                        <a href="/eligibility" class="btn btn-sm btn-outline-success">Check Now</a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm text-center p-3">
+                        <i class="bi bi-search fs-2 text-primary mb-2"></i>
+                        <h6 class="mb-2">Browse Grants</h6>
+                        <p class="small text-muted mb-2">Explore opportunities</p>
+                        <a href="/search" class="btn btn-sm btn-outline-primary">Search</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function loadProfile() {
+    fetch('/api/get-profile')
+        .then(res => res.json())
+        .then(profile => {
+            if (Object.keys(profile).length > 0) {
+                document.getElementById('startupName').value = profile.startupName || '';
+                document.getElementById('registrationNumber').value = profile.registrationNumber || '';
+                document.getElementById('industry').value = profile.industry || '';
+                document.getElementById('stage').value = profile.stage || '';
+                document.getElementById('foundedYear').value = profile.foundedYear || '';
+                document.getElementById('teamSize').value = profile.teamSize || '';
+                document.getElementById('city').value = profile.city || '';
+                document.getElementById('state').value = profile.state || '';
+                document.getElementById('country').value = profile.country || 'India';
+                document.getElementById('website').value = profile.website || '';
+                document.getElementById('description').value = profile.description || '';
+                document.getElementById('fundingStage').value = profile.fundingStage || '';
+                document.getElementById('fundingNeeded').value = profile.fundingNeeded || '';
+                document.getElementById('fundingPurpose').value = profile.fundingPurpose || '';
+                document.getElementById('shortTermGoals').value = profile.shortTermGoals || '';
+                document.getElementById('longTermGoals').value = profile.longTermGoals || '';
+                document.getElementById('dpiitRecognized').checked = profile.dpiitRecognized || false;
+                document.getElementById('msmeRegistered').checked = profile.msmeRegistered || false;
+                document.getElementById('certifications').value = profile.certifications || '';
+            }
+        })
+        .catch(err => console.error('Error loading profile:', err));
+}
+
+document.getElementById('profileForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const profile = {
+        startupName: document.getElementById('startupName').value,
+        registrationNumber: document.getElementById('registrationNumber').value,
+        industry: document.getElementById('industry').value,
+        stage: document.getElementById('stage').value,
+        foundedYear: document.getElementById('foundedYear').value,
+        teamSize: document.getElementById('teamSize').value,
+        city: document.getElementById('city').value,
+        state: document.getElementById('state').value,
+        country: document.getElementById('country').value,
+        website: document.getElementById('website').value,
+        description: document.getElementById('description').value,
+        fundingStage: document.getElementById('fundingStage').value,
+        fundingNeeded: document.getElementById('fundingNeeded').value,
+        fundingPurpose: document.getElementById('fundingPurpose').value,
+        shortTermGoals: document.getElementById('shortTermGoals').value,
+        longTermGoals: document.getElementById('longTermGoals').value,
+        dpiitRecognized: document.getElementById('dpiitRecognized').checked,
+        msmeRegistered: document.getElementById('msmeRegistered').checked,
+        certifications: document.getElementById('certifications').value
+    };
+    
+    try {
+        const response = await fetch('/api/save-profile', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(profile)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
+            alert.style.zIndex = '9999';
+            alert.innerHTML = `
+                <i class="bi bi-check-circle me-2"></i>
+                <strong>Success!</strong> Your profile has been saved.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alert);
+            setTimeout(() => alert.remove(), 3000);
+        }
+    } catch (error) {
+        console.error('Error saving profile:', error);
+        alert('Error saving profile. Please try again.');
+    }
+});
+
+document.addEventListener('DOMContentLoaded', loadProfile);
+</script>
+{% endblock %}

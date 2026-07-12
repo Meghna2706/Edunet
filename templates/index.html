@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Granter Genie{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Hero Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="hero-card card border-0 shadow-lg bg-gradient-primary text-white">
+                <div class="card-body p-5">
+                    <div class="row align-items-center">
+                        <div class="col-lg-8">
+                            <h1 class="display-4 fw-bold mb-3 animate-fade-in">
+                                <i class="bi bi-magic text-warning"></i> Welcome to Granter Genie
+                            </h1>
+                            <p class="lead mb-4">Your AI-powered assistant for discovering grants, funding opportunities, and accelerator programs tailored to your startup's needs.</p>
+                            <div class="d-flex gap-3 flex-wrap">
+                                <a href="/chat" class="btn btn-warning btn-lg">
+                                    <i class="bi bi-chat-dots me-2"></i>Start AI Chat
+                                </a>
+                                <a href="/search" class="btn btn-outline-light btn-lg">
+                                    <i class="bi bi-search me-2"></i>Browse Grants
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 text-center d-none d-lg-block">
+                            <i class="bi bi-rocket-takeoff display-1 text-warning animate-float"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="stat-icon bg-primary-subtle text-primary mb-3">
+                        <i class="bi bi-database-fill fs-1"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1" id="totalGrants">150+</h3>
+                    <p class="text-muted mb-0">Total Grants</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="stat-icon bg-success-subtle text-success mb-3">
+                        <i class="bi bi-cash-stack fs-1"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1">₹500Cr+</h3>
+                    <p class="text-muted mb-0">Available Funding</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="stat-icon bg-warning-subtle text-warning mb-3">
+                        <i class="bi bi-clock-history fs-1"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1" id="upcomingDeadlines">12</h3>
+                    <p class="text-muted mb-0">Upcoming Deadlines</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="stat-icon bg-info-subtle text-info mb-3">
+                        <i class="bi bi-check-circle-fill fs-1"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1" id="matchedGrants">8</h3>
+                    <p class="text-muted mb-0">Matched for You</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-lightning-charge-fill text-warning me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <a href="/chat" class="action-card card border-0 bg-primary-subtle text-decoration-none h-100">
+                                <div class="card-body d-flex align-items-center">
+                                    <div class="action-icon bg-primary text-white me-3">
+                                        <i class="bi bi-chat-dots-fill"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1 fw-bold text-dark">AI Chat Assistant</h6>
+                                        <p class="small text-muted mb-0">Get instant funding advice</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="/recommendations" class="action-card card border-0 bg-success-subtle text-decoration-none h-100">
+                                <div class="card-body d-flex align-items-center">
+                                    <div class="action-icon bg-success text-white me-3">
+                                        <i class="bi bi-lightbulb-fill"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1 fw-bold text-dark">Get Recommendations</h6>
+                                        <p class="small text-muted mb-0">Personalized grant matches</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="/eligibility" class="action-card card border-0 bg-warning-subtle text-decoration-none h-100">
+                                <div class="card-body d-flex align-items-center">
+                                    <div class="action-icon bg-warning text-white me-3">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1 fw-bold text-dark">Check Eligibility</h6>
+                                        <p class="small text-muted mb-0">Analyze your chances</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="/tracker" class="action-card card border-0 bg-info-subtle text-decoration-none h-100">
+                                <div class="card-body d-flex align-items-center">
+                                    <div class="action-icon bg-info text-white me-3">
+                                        <i class="bi bi-list-check"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1 fw-bold text-dark">Track Applications</h6>
+                                        <p class="small text-muted mb-0">Monitor your progress</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Deadlines -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-alarm-fill text-danger me-2"></i>Upcoming Deadlines
+                    </h5>
+                </div>
+                <div class="card-body" id="deadlinesList">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Grants -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 pt-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="bi bi-star-fill text-warning me-2"></i>Featured Opportunities
+                        </h5>
+                        <a href="/search" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3" id="featuredGrants">
+                        <div class="col-12 text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Features -->
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card feature-card border-0 shadow-sm h-100">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-primary-subtle text-primary mb-3">
+                        <i class="bi bi-robot fs-1"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">AI-Powered Matching</h5>
+                    <p class="text-muted">Our IBM Granite AI analyzes your startup profile and recommends the most suitable funding opportunities.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card feature-card border-0 shadow-sm h-100">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-success-subtle text-success mb-3">
+                        <i class="bi bi-file-earmark-text fs-1"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Proposal Generation</h5>
+                    <p class="text-muted">Generate professional grant proposals and application documents with AI assistance.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card feature-card border-0 shadow-sm h-100">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-warning-subtle text-warning mb-3">
+                        <i class="bi bi-graph-up-arrow fs-1"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Success Tracking</h5>
+                    <p class="text-muted">Track your applications, deadlines, and success rates all in one place.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Load deadlines
+async function loadDeadlines() {
+    try {
+        const response = await fetch('/api/deadlines');
+        const data = await response.json();
+        const deadlinesList = document.getElementById('deadlinesList');
+        
+        if (data.deadlines && data.deadlines.length > 0) {
+            deadlinesList.innerHTML = data.deadlines.slice(0, 5).map(grant => `
+                <div class="deadline-item mb-3 pb-3 border-bottom">
+                    <h6 class="mb-1 fw-bold">${grant.name}</h6>
+                    <p class="small text-muted mb-1">${grant.provider}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-danger-subtle text-danger">
+                            <i class="bi bi-clock me-1"></i>${grant.days_left} days left
+                        </span>
+                        <span class="small text-muted">${grant.deadline}</span>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            deadlinesList.innerHTML = '<p class="text-muted text-center">No upcoming deadlines</p>';
+        }
+    } catch (error) {
+        console.error('Error loading deadlines:', error);
+        document.getElementById('deadlinesList').innerHTML = '<p class="text-danger text-center">Error loading deadlines</p>';
+    }
+}
+
+// Load featured grants
+async function loadFeaturedGrants() {
+    try {
+        const response = await fetch('/api/search-grants', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({})
+        });
+        const data = await response.json();
+        const featuredGrants = document.getElementById('featuredGrants');
+        
+        if (data.grants && data.grants.length > 0) {
+            featuredGrants.innerHTML = data.grants.slice(0, 3).map(grant => `
+                <div class="col-md-4">
+                    <div class="card grant-card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="badge bg-primary-subtle text-primary">${grant.type}</span>
+                                <i class="bi bi-bookmark text-muted"></i>
+                            </div>
+                            <h6 class="fw-bold mb-2">${grant.name}</h6>
+                            <p class="small text-muted mb-2">${grant.provider}</p>
+                            <div class="mb-3">
+                                <span class="badge bg-success-subtle text-success me-1">
+                                    <i class="bi bi-cash me-1"></i>${grant.amount}
+                                </span>
+                                <span class="badge bg-info-subtle text-info">
+                                    <i class="bi bi-geo-alt me-1"></i>${grant.location}
+                                </span>
+                            </div>
+                            <p class="small mb-3">${grant.description.substring(0, 100)}...</p>
+                            <a href="/search" class="btn btn-sm btn-outline-primary w-100">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            featuredGrants.innerHTML = '<div class="col-12"><p class="text-muted text-center">No grants available</p></div>';
+        }
+    } catch (error) {
+        console.error('Error loading grants:', error);
+        document.getElementById('featuredGrants').innerHTML = '<div class="col-12"><p class="text-danger text-center">Error loading grants</p></div>';
+    }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    loadDeadlines();
+    loadFeaturedGrants();
+});
+</script>
+{% endblock %}
