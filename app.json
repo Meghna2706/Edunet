@@ -1,0 +1,27 @@
+{
+  "name": "Granter-Genie",
+  "description": "AI-powered Grant and Funding Finder for Startups using IBM watsonx.ai and Granite Models",
+  "repository": "https://github.com/Meghna2706/Edunet",
+  "logo": "",
+  "keywords": [
+    "python",
+    "flask",
+    "ibm",
+    "watsonx",
+    "granite",
+    "ai",
+    "grant",
+    "startup"
+  ],
+  "env": {
+    "IBM_API_KEY": {
+      "description": "IBM Cloud API Key"
+    },
+    "PROJECT_ID": {
+      "description": "IBM watsonx Project ID"
+    },
+    "IBM_URL": {
+      "description": "IBM watsonx API URL"
+    }
+  }
+}
